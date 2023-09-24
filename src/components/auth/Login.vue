@@ -1,9 +1,9 @@
 <template>
     <div class="space-y-6">
-        <TextInput label="Email" type="email" v-model="loginFrom.email" />
-        <TextInput label="Password" type="password" v-model="loginFrom.password" />
+        <TextInput label="Email" type="email" v-model="loginForm.email" />
+        <TextInput label="Password" type="password" v-model="loginForm.password" />
         <div class="flex items-center justify-between">
-            <LoadingButton :loading="false" @click="login" />
+            <LoadingButton :loading="loading" @click="login" />
             <a href="/auth/register">Need an account?</a>
         </div>
     </div>
@@ -14,9 +14,16 @@ import TextInput from '../form/TextInput.vue';
 import LoadingButton from '../form/LoadingButton.vue';
 import { useUserStore } from '@/stores/user';
 import { storeToRefs } from 'pinia';
+import { useFetchStore } from '@/stores/fetch';
+import router from '@/router';
 
-const { loginFrom } = storeToRefs(useUserStore());
+const { loading, status } = storeToRefs(useFetchStore());
+const { loginForm } = storeToRefs(useUserStore());
 const { login } = useUserStore();
+if (status.value === 200) {
+    router.push({ name: 'Dashboard' });
+}
+
 </script>
 
 <style scoped></style>
