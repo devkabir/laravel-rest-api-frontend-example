@@ -2,24 +2,31 @@
     <h2 class="sr-only">Details</h2>
     <div class="gap-4 sm:flex sm:flex-wrap">
         <div class="flex items-center space-x-2">
-            <div class="inline-flex items-center gap-2">
+            <div class="inline-flex items-center gap-2" v-if="task?.deleted_at">
+                <LockClosedIcon class="w-5 h-5 text-rose-500" />
+                <p class="text-sm font-medium text-rose-700">Closed</p>
+            </div>
+            <div v-else class="inline-flex items-center gap-2">
                 <LockOpenIcon class="w-5 h-5 text-green-500" />
-                <span class="text-sm font-medium text-green-700">Open Issue</span>
+                <p class="font-medium text-green-700">Active</p>
             </div>
         </div>
         <div class="flex items-center space-x-2">
             <ChatBubbleLeftEllipsisIcon class="w-5 h-5 text-gray-400" />
-            <span class="text-sm font-medium text-gray-900">4 comments</span>
+            <p>{{ task?.comments_count || 0 }} comments</p>
         </div>
         <div class="flex items-center space-x-2">
             <ClockIcon class="w-5 h-5 text-gray-400" />
-            <span class="text-sm font-medium text-gray-900">Created on <time datetime="2020-12-02">Dec 2, 2020</time></span>
+            <span class="text-sm font-medium text-gray-900">
+                Created at
+                <time :datetime="task?.created_at">{{ new Date(task?.created_at || '').toLocaleString() }}</time>
+            </span>
         </div>
     </div>
     <div class="py-6 mt-6 space-y-8 border-t border-b border-gray-200">
         <div>
             <h2 class="text-sm font-medium text-gray-500">Assignees</h2>
-            <ul role="list" class="mt-3 space-y-3">
+            <ul role="list" class="mt-3 space-y-3" v-if="task?.users_count">
                 <li class="flex justify-start">
                     <a href="#" class="flex items-center space-x-3">
                         <div class="flex-shrink-0">
@@ -31,11 +38,14 @@
                     </a>
                 </li>
             </ul>
+            <p v-else>No assignees yet </p>
         </div>
 
     </div>
 </template>
 <script setup lang="ts">
-import { ChatBubbleLeftEllipsisIcon, ClockIcon, LockOpenIcon } from '@heroicons/vue/24/solid';
-
+import { useTaskStore } from '@/stores/task';
+import { ChatBubbleLeftEllipsisIcon, ClockIcon, LockClosedIcon, LockOpenIcon } from '@heroicons/vue/24/solid';
+import { storeToRefs } from 'pinia';
+const { task, comment } = storeToRefs(useTaskStore());
 </script>

@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+button {
+  @apply inline-flex justify-center items-center gap-2 px-4 py-2 text-sm font-bold border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2;
+  svg {
+    @apply w-4 h-4;
+  }
+}
+
+.primary {
+  @apply text-white bg-blue-500 hover:bg-blue-600 focus:ring-blue-500;
+}
+
+.secondary {
+  @apply text-gray-700 bg-white hover:bg-gray-50 focus:ring-gray-300;
+}
+
+.tertiary {
+  @apply text-gray-700 bg-white hover:bg-gray-50 focus:ring-gray-300;
+}
+.danger {
+  @apply text-white bg-rose-500 hover:bg-rose-600 focus:ring-rose-500;
+}
+
+p {
+  @apply text-sm leading-5 text-gray-500;
+}

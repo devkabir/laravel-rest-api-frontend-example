@@ -13,16 +13,21 @@
         </div>
 
         <div class="flex items-center justify-between mt-4">
-            <LoadingButtonVue :loading="false" class="primary" :text="'Resend Verification Email'" />
-            <LoadingButtonVue :loading="false" class="secondary" :text="'Log Out'" />
+            <LoadingButtonVue :loading="loading" class="primary" :text="'Resend Verification Email'"
+                @click="resendEmailVerification" />
+            <LoadingButtonVue :loading="loading" class="secondary" :text="'Log Out'" />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from '@/stores/user';
 import LoadingButtonVue from '../form/LoadingButton.vue';
+import { storeToRefs } from 'pinia';
+import { useFetchStore } from '@/stores/fetch';
+const { loading } = storeToRefs(useFetchStore());
 
-
+const { resendEmailVerification } = useUserStore()
 </script>
 
 <style scoped></style>
