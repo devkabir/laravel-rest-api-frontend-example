@@ -2,11 +2,13 @@
     <div class="grid grid-cols-1 gap-6 my-8 xl:grid-cols-3" ref="el" v-if="tasks">
         <Task v-for="task in tasks" :key="task.id" :task="task" />
     </div>
+
     <div class="grid grid-cols-1 gap-6 xl:grid-cols-3" v-if="loading">
         <TaskSkeleton />
         <TaskSkeleton />
         <TaskSkeleton />
     </div>
+    <p v-if="!loading && !tasks">No tasks</p>
 </template>
 
 <script setup lang="ts">

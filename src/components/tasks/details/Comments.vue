@@ -7,8 +7,8 @@
         </div>
         <div class="pt-6">
           <div class="flow-root">
-            <ul class="-mb-8" role="list" v-if="task?.comments.length">
-              <Comment v-for="comment in task?.comments" :key="comment.id" />
+            <ul class="-mb-8" role="list" v-if="task?.comments.data">
+              <Comment v-for="item in task?.comments?.data" :key="item.id" :comment="item" />
             </ul>
             <p v-else>No comments yet</p>
           </div>

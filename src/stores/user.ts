@@ -13,11 +13,13 @@ export interface User {
 
 export interface UserStore {
   user: Ref<User | undefined>;
+  users: Ref<User[] | undefined>;
   loginForm: Ref<LoginForm>;
   registerForm: Ref<RegisterForm>;
   login: () => Promise<void>;
   register: () => Promise<void>;
   getUser: () => Promise<void>;
+  getUsers: () => Promise<void>;
   resendEmailVerification: () => void;
   logout: () => void;
 }
@@ -35,6 +37,7 @@ interface LoginForm {
 
 const setup = (): UserStore => {
   const user: Ref<User | undefined> = ref();
+  const users: Ref<[] | undefined> = ref([]);
   const loginForm: Ref<LoginForm> = ref({
     email: "admin@localhost.com",
     password: "password",
@@ -53,6 +56,10 @@ const setup = (): UserStore => {
   const getUser: UserStore["getUser"] = async () => {
     await get("/api/user");
     user.value = response.value;
+  };
+  const getUsers: UserStore["getUsers"] = async () => {
+    await get("/api/users");
+    users.value = response.value;
   };
 
   const register = async () => {
@@ -92,11 +99,13 @@ const setup = (): UserStore => {
 
   return {
     user,
+    users,
     loginForm,
     registerForm,
     login,
     register,
     getUser,
+    getUsers,
     resendEmailVerification,
     logout,
   };

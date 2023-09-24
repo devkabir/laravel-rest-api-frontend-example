@@ -1,6 +1,5 @@
 <template>
-  <div v-if="loading"></div>
-  <div v-else class="py-8 xl:py-10">
+  <div v-if="task" class="py-8 xl:py-10">
     <div class="max-w-3xl px-4 mx-auto sm:px-6 lg:px-8 xl:grid xl:max-w-5xl xl:grid-cols-3">
       <div class="xl:col-span-2 xl:border-r xl:border-gray-200 xl:pr-8">
         <div>

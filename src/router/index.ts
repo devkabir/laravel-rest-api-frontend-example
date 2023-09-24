@@ -32,7 +32,7 @@ const routes = [
           {
             path: "edit/:id",
             name: "EditTask",
-            component: () => import("@/components/tasks/CreateTask.vue"),
+            component: () => import("@/components/tasks/EditTask.vue"),
           },
         ],
       },
