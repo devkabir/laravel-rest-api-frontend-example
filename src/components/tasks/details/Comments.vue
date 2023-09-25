@@ -12,7 +12,7 @@
             </ul>
             <p v-else>No comments yet</p>
           </div>
-          <div class="mt-6">
+          <div class="mt-6" v-if="canInteractWith(task)">
             <div class="flex space-x-3">
               <div class="flex-shrink-0">
                 <div class="relative">
@@ -47,5 +47,5 @@ import { storeToRefs } from "pinia";
 
 const { task, comment } = storeToRefs(useTaskStore());
 const { loading } = storeToRefs(useFetchStore());
-const { addComment } = useTaskStore();
+const { addComment, canInteractWith } = useTaskStore();
 </script>

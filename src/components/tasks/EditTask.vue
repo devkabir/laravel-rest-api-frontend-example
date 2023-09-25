@@ -7,19 +7,19 @@
 
         <ul v-if="Object.keys(users).length" class="grid sm:grid-cols-3 gap-3 md:grid-cols-6 w-full">
             <label v-for="(name, id) in users" :key="id" :class="{
-                'bg-indigo-600 border-transparent  text-white hover:bg-indigo-700': taskForm.selectedUsers.includes(id),
+                'bg-indigo-600 border-transparent  text-white hover:bg-indigo-700': taskForm.selectedUsers?.includes(id.toString()) || taskForm.creator_id?.toString() === id,
             }"
                 class="border  rounded-md py-3 px-3 flex flex-wrap items-center justify-center text-sm font-medium uppercase sm:flex-1 cursor-pointer focus:outline-none">
                 <input type="checkbox" v-model="taskForm.selectedUsers" :value="id" class="sr-only">
                 <span class="block ml-3 font-medium truncate">{{ name }}</span>
             </label>
         </ul>
-        <LoadingButton class="primary" @click="createTask" :loading="loading" :text="'Save'" />
+        <LoadingButton class="primary" @click="updateTask" :loading="loading" :text="'Save'" />
     </div>
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, onUnmounted, ref } from 'vue';
+import { onBeforeMount } from 'vue';
 import { useTaskStore } from '@/stores/task';
 import { storeToRefs } from 'pinia';
 import { useFetchStore } from '@/stores/fetch';
@@ -31,13 +31,16 @@ const { error, loading } = storeToRefs(useFetchStore())
 const { taskForm, task } = storeToRefs(useTaskStore())
 const { users } = storeToRefs(useUserStore())
 const { getUsers } = useUserStore()
-const { createTask, getTask } = useTaskStore()
+const { updateTask, getTask, canInteractWith } = useTaskStore()
+
+
 onBeforeMount(() => {
     taskForm.value.name = ''
     taskForm.value.description = ''
     taskForm.value.selectedUsers = []
     getUsers()
     getTask()
+
 })
 
 </script>

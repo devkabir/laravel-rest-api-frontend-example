@@ -7,7 +7,7 @@
             If you didn't receive the email, we will gladly send you another.
         </div>
 
-        <div class="mb-4 font-medium text-green-600">
+        <div class="mb-4 font-medium text-green-600" v-if="status === 200">
             A new verification link has been sent to the email address you
             provided during registration.
         </div>
@@ -15,7 +15,7 @@
         <div class="flex items-center justify-between mt-4">
             <LoadingButtonVue :loading="loading" class="primary" :text="'Resend Verification Email'"
                 @click="resendEmailVerification" />
-            <LoadingButtonVue :loading="loading" class="secondary" :text="'Log Out'" />
+            <LoadingButtonVue :loading="loading" class="secondary" :text="'Log Out'" @click="logout" />
         </div>
     </div>
 </template>
@@ -25,9 +25,10 @@ import { useUserStore } from '@/stores/user';
 import LoadingButtonVue from '../form/LoadingButton.vue';
 import { storeToRefs } from 'pinia';
 import { useFetchStore } from '@/stores/fetch';
-const { loading } = storeToRefs(useFetchStore());
+const { loading, status } = storeToRefs(useFetchStore());
+console.log(status.value);
 
-const { resendEmailVerification } = useUserStore()
+const { resendEmailVerification, logout } = useUserStore()
 </script>
 
 <style scoped></style>

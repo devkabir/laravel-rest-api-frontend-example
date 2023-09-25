@@ -8,20 +8,19 @@
         <TaskSkeleton />
         <TaskSkeleton />
     </div>
-    <p v-if="!loading && !tasks">No tasks</p>
+    <p v-if="!loading && !Object.values(tasks).length">No tasks</p>
 </template>
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import Task from './Task.vue';
-import TaskFilter from './TaskFilter.vue';
 import TaskSkeleton from '@/components/skeletons/TaskSkeleton.vue';
 import { useTaskStore } from '@/stores/task';
 import { useFetchStore } from '@/stores/fetch';
-import { onBeforeMount, ref, toRefs, watch } from 'vue';
+import { onBeforeMount } from 'vue';
 const { tasks } = storeToRefs(useTaskStore());
 const { getTasks, loadTasks } = useTaskStore();
-const { loading, error } = storeToRefs(useFetchStore());
+const { loading } = storeToRefs(useFetchStore());
 
 
 window.onscroll = () => {

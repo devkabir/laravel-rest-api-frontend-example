@@ -13,31 +13,24 @@ const axios = Axios.create({
   withCredentials: true,
 });
 
-axios.interceptors.response.use(
-  (resp) => {
+interface RegistrationFormError {
+  name: string[];
+  email: string[];
+  password: string[];
+}
 
-    // if (resp.status === 204) {
-    //   router.push({ name: "Dashboard" });
-    //   return resp;
-    // }
+interface TaskFormError {
+  name: string[];
+  description: string[];
+  creator_id: string[];
+  selectedUsers: string[];
+}
 
-    return resp;
-  },
-  (error) => {
-    if (error.response.status === 401) {
-      router.push({ name: "Login" });
-    } else if (error.response.status === 409) {
-      router.push({ name: "VerifyEmail" });
-    } else if (error.response.status === 422) {
-      throw error;
-    }
-    return Promise.reject(error);
-  }
-);
 export interface FetchStore {
   response: Ref<any>;
   status: Ref<number>;
   error: Ref<string | null | undefined>;
+  formError: Ref<RegistrationFormError | TaskFormError | any>;
   loading: Ref<boolean>;
   csrf: () => Promise<any>;
   get: (url: string) => Promise<void>;
@@ -52,32 +45,68 @@ export interface FetchStore {
 const createFetchStore = (): FetchStore => {
   const response: Ref<any> = ref();
   const error: Ref<string | null | undefined> = ref();
+  const formError: Ref<RegistrationFormError | TaskFormError | any> = ref([]);
   const status: Ref<number> = ref(0);
   const loading: Ref<boolean> = ref(false);
+  axios.interceptors.request.use(
+    (config) => {
+      loading.value = true;
+      status.value = 0;
+      formError.value = [];
+      error.value = null;
+      response.value = null;
+      return config;
+    }
+  )
+  axios.interceptors.response.use(
+    (resp) => {
+      response.value = resp.data;
+      status.value = resp.status;
+      loading.value = false;
+      if (resp.status === 200 && resp.request.responseURL === import.meta.env.VITE_API_URL) {
+        router.push({ name: "Dashboard" });
+      }
+      if (resp.status === 204 && resp.request.responseURL === import.meta.env.VITE_API_URL + 'login') {
+        router.push({ name: "Dashboard" });
+      }
+      if (resp.status === 401) {
+        router.push({ name: "Login" });
+      }
+      return resp;
+    },
+    (error) => {
+      if (error.response.status === 401) {
+        router.push({ name: "Login" });
+      } else if (error.response.status === 409) {
+        router.push({ name: "VerifyEmail" });
+      } else if (error.response.status === 422) {
+        formError.value = error.response.data.errors;
+        status.value = error.response.status;
+      } else if (error.response.status === 403) {
+        error.value = error.response.data.message;
+        status.value = error.response.status;
+      }
+      loading.value = false;
+      return Promise.reject(error);
+    },
+  );
+
 
   const makeRequest = async (
     method: "get" | "post" | "put" | "patch" | "delete",
     url: string,
     data?: any
   ): Promise<void> => {
-    loading.value = true;
 
-    try {
-      let res;
-      if (data) {
-        res = await axios[method](url, data, {
-          headers: { "Content-Type": "application/json" },
-        });
-      } else {
-        res = await axios[method](url);
-      }
-      status.value = res.status;
-      response.value = res.data;
-    } catch (err: AxiosError | any) {
-      error.value = err.response.data.message;
-    } finally {
-      loading.value = false;
+    let res;
+    if (data) {
+      res = await axios[method](url, data, {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      });
+    } else {
+      res = await axios[method](url);
     }
+
   };
 
   const csrf = () => makeRequest("get", "/sanctum/csrf-cookie");
@@ -105,6 +134,7 @@ const createFetchStore = (): FetchStore => {
   return {
     response,
     error,
+    formError,
     status,
     loading,
     csrf,

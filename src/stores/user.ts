@@ -13,7 +13,7 @@ export interface User {
 
 export interface UserStore {
   user: Ref<User | undefined>;
-  users: Ref<User[] | undefined>;
+  users: Ref<Users>;
   loginForm: Ref<LoginForm>;
   registerForm: Ref<RegisterForm>;
   login: () => Promise<void>;
@@ -35,19 +35,24 @@ interface LoginForm {
   password: string;
 }
 
+interface Users {
+  [key: string]: string;
+}
+
+
 const setup = (): UserStore => {
   const user: Ref<User | undefined> = ref();
-  const users: Ref<[] | undefined> = ref([]);
+  const users: Ref<Users> = ref({});
   const loginForm: Ref<LoginForm> = ref({
-    email: "admin@localhost.com",
-    password: "password",
+    email: "",
+    password: "",
   });
 
   const registerForm: Ref<RegisterForm> = ref({
-    name: "admin",
-    email: "admin@localhost.com",
-    password: "password",
-    password_confirmation: "password",
+    name: "",
+    email: "",
+    password: "",
+    password_confirmation: "",
   });
 
   const { response, status, loading } = storeToRefs(useFetchStore());
@@ -65,8 +70,7 @@ const setup = (): UserStore => {
   const register = async () => {
     await csrf().then(async () => {
       await post("/register", registerForm.value);
-
-      if (status.value === 409) {
+      if (status.value !== 422 && status.value !== 403) {
         router.push({ name: "VerifyEmail" });
       }
     });
@@ -77,9 +81,7 @@ const setup = (): UserStore => {
       await post("/login", loginForm.value);
       if (!loading) {
         console.log(status.value);
-
         if (status.value === 204 || status.value === 200) {
-          getUser();
           router.push({ name: "Dashboard" });
         } else alert("Invalid credentials");
       }

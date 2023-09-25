@@ -5,7 +5,7 @@
             <input v-model="value" :id="id" :type="type" :class="{
                 'border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500': error,
                 'border-gray-300 text-indigo-900 focus:ring-indigo-500 focus:border-indigo-500': !error
-            }" class="block w-full pr-10 rounded-md focus:outline-none sm:text-sm">
+            }" class="block w-full pr-10 rounded-md focus:outline-none sm:text-sm" autocomplete="off">
             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none" v-if="error">
                 <ExclamationCircleIcon class="w-5 h-5 text-red-500" aria-hidden="true" />
             </div>

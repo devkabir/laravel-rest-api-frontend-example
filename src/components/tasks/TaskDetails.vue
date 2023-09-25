@@ -12,7 +12,7 @@
                   <a class="font-medium text-gray-900" href="#">{{ task?.creator.name }}</a>
                 </p>
               </div>
-              <div class="flex mt-4 space-x-3 md:mt-0">
+              <div class="flex mt-4 space-x-3 md:mt-0" v-if="canInteractWith(task)">
                 <button class="tertiary" @click="$router.push({ name: 'EditTask', params: { id: task?.id } })">
                   <PencilIcon />
                   <span>Edit</span>
@@ -52,13 +52,12 @@ import { PencilIcon, TrashIcon } from "@heroicons/vue/24/solid";
 import { storeToRefs } from "pinia";
 import { onBeforeMount, onMounted } from "vue";
 
-const { task } = storeToRefs(useTaskStore());
-const { getTask, deleteTask } = useTaskStore();
-const { loading, error } = storeToRefs(useFetchStore());
+const { task, } = storeToRefs(useTaskStore());
+const { getTask, deleteTask, canInteractWith } = useTaskStore();
 const performDelete = () => {
   if (!task.value) return;
   if (confirm("Are you sure you want to delete this task?")) {
-    deleteTask();
+    deleteTask(task.value.id);
   }
 }
 onBeforeMount(getTask);

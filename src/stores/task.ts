@@ -4,7 +4,7 @@ import { useFetchStore } from "./fetch";
 import router from "@/router";
 import { useUserStore, type User } from "./user";
 
-interface Task {
+export interface Task {
   id: number;
   name: string;
   description: string;
@@ -15,8 +15,12 @@ interface Task {
   creator: User;
   users: User[];
   users_count: number;
-  comments: Comment[];
+  comments: Comments;
   comments_count: number | null;
+}
+
+interface Comments {
+  data: Comment[];
 }
 
 interface Comment {
@@ -39,12 +43,13 @@ interface TaskStore {
   tasks: Task[];
   task: Task;
   taskForm: Ref<TaskForm>;
+  canInteractWith: (task: Task) => boolean;
   getTasks: () => void;
   getTask: () => void;
   addComment: () => void;
   loadTasks: () => void;
   createTask: () => void;
-  // updateTask: () => void;
+  updateTask: () => void;
   deleteTask: (id: number) => void;
 }
 
@@ -55,7 +60,7 @@ const setup = () => {
   const nextPage: Ref<number> = ref(0);
   const comment = ref("");
 
-  const { response, error, loading } = storeToRefs(useFetchStore());
+  const { response, status } = storeToRefs(useFetchStore());
   const { user } = storeToRefs(useUserStore());
   const { get, post, patch, deleteItem } = useFetchStore();
   const taskForm: TaskForm = reactive({
@@ -65,7 +70,6 @@ const setup = () => {
     selectedUsers: [],
   });
 
-  const selectedUsers = ref([]);
 
 
   const getTasks: TaskStore["getTasks"] = async () => {
@@ -73,9 +77,23 @@ const setup = () => {
     await get("/api/tasks");
     if (response.value) {
       tasks.value = response.value.data;
-      nextPage.value = response.value.meta.last_page;
+      if (response.value.meta.last_page !== response.value.meta.current_page) {
+        nextPage.value = response.value.meta.last_page;
+      } else {
+        nextPage.value = 0;
+      }
     }
   };
+
+  const canInteractWith: TaskStore["canInteractWith"] = (task: Task): boolean => {
+    if (user.value?.id === task.creator_id || task.users.some((u: User) => u.id === user.value?.id)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
 
   const getTask: TaskStore["getTask"] = async () => {
     task.value = undefined;
@@ -88,6 +106,9 @@ const setup = () => {
     await get(`/api/tasks/${id}`);
     if (response.value) {
       task.value = response.value.data;
+      if (!canInteractWith(response.value.data)) {
+        router.push({ name: "TaskDetails", params: { id: response.value.data.id } });
+      }
       taskForm.name = task.value?.name;
       taskForm.description = task.value?.description;
       taskForm.creator_id = task.value?.creator_id;
@@ -104,7 +125,7 @@ const setup = () => {
     if (response.value) {
       if (task.value) {
         task.value.comments.data.push(response.value.data);
-        task.value.comments_count = task.value.comments.length;
+        task.value.comments_count = task.value.comments.data.length;
       }
       comment.value = "";
     }
@@ -120,19 +141,16 @@ const setup = () => {
         ) {
           nextPage.value++;
         } else {
-          nextPage.value = null;
+          nextPage.value = 0;
         }
       }
     }
   };
 
   const createTask: TaskStore["createTask"] = async () => {
-    if (task.value) {
-      await patch(`/api/tasks/${task.value.id}`, taskForm);
-    } else {
-      taskForm.creator_id = user.value?.id;
-      await post("/api/tasks", taskForm);
-    }
+
+    taskForm.creator_id = user.value?.id;
+    await post("/api/tasks", taskForm);
 
     if (response.value) {
       tasks.value.push(response.value.data);
@@ -144,25 +162,35 @@ const setup = () => {
     }
   };
 
-  // const updateTask: TaskStore["updateTask"] = () => {
-  //   tasks.value = tasks.value.map((t) => (t.id === task.id ? task : t));
-  // };
+  const updateTask: TaskStore["updateTask"] = async () => {
+    await patch(`/api/tasks/${task.value?.id}`, taskForm);
+    if (response.value) {
+      task.value = response.value.data;
+      tasks.value = tasks.value.map((t) => (t.id === task.value?.id ? task.value : t));
+      router.push({
+        name: "TaskDetails",
+        params: { id: response.value.data.id },
+      });
+    }
+  };
 
   const deleteTask: TaskStore["deleteTask"] = async (id) => {
     task.value = undefined;
     comment.value = "";
     await deleteItem(`/api/tasks/${id}`);
-    if (response.value) {
+    if (status.value === 204) {
       tasks.value = tasks.value.filter((t) => t.id !== id);
       if (router.currentRoute.value.name === "TaskDetails") {
         router.push({ name: "Tasks" });
       }
     }
+
   };
 
   return {
     tasks,
     task,
+    canInteractWith,
     taskForm,
     comment,
     nextPage,
@@ -171,7 +199,7 @@ const setup = () => {
     addComment,
     loadTasks,
     createTask,
-    // updateTask,
+    updateTask,
     deleteTask,
   };
 };

@@ -1,7 +1,7 @@
 <template>
     <header class="bg-white border-b border-gray-200">
 
-        <nav class="bg-white shadow mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-2 flex justify-between">
+        <nav class="bg-white shadow mx-auto  px-4 sm:px-6 lg:px-8 py-2 flex justify-between">
             <div class="flex gap-4 items-center">
                 <router-link to="/">
                     <Logo class="block w-auto h-9" />
@@ -16,7 +16,8 @@
                 </router-link>
             </div>
             <div class="inline-flex items-center gap-4">
-                <button @click="logout">Logout</button>
+                <span>{{ user?.name }}</span>
+                <button @click="logout">Log out</button>
             </div>
         </nav>
 
